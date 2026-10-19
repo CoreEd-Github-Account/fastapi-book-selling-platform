@@ -11,6 +11,7 @@ class Book(SQLModel, table=True):
     title: str = Field(index=True, nullable=False)
     author: str = Field(nullable=False)
     price: int = Field(nullable=False)
+    condition: str = Field(nullable=False)
     is_sold: bool = Field(default=False)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
 

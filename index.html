@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PageTurn — Book Marketplace</title>
+  <style>
+    :root {
+      --ink: #17231d;
+      --muted: #6c776f;
+      --paper: #f6f5ef;
+      --card: #fffefa;
+      --green: #245c45;
+      --green-dark: #173e2e;
+      --lime: #d8f078;
+      --line: #e5e7dd;
+      --red: #b54137;
+      --shadow: 0 16px 40px rgba(29, 49, 38, .08);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--ink); background: var(--paper); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar { background: var(--green-dark); color: #fff; padding: 12px 5.5%; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 12px; letter-spacing: .04em; }
+    .topbar span { opacity: .8; }
+    .topbar strong { color: var(--lime); font-weight: 700; }
+    header { padding: 22px 5.5%; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); background: rgba(255,254,250,.75); }
+    .brand { display: flex; align-items: center; gap: 11px; font-size: 22px; font-weight: 850; letter-spacing: -.06em; }
+    .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; background: var(--lime); border-radius: 11px; color: var(--green-dark); font-size: 19px; }
+    nav { display: flex; gap: 24px; align-items: center; color: var(--muted); font-size: 13px; }
+    nav a { color: inherit; text-decoration: none; }
+    nav a:hover { color: var(--green); }
+    .btn { border: 0; border-radius: 12px; padding: 11px 16px; font-weight: 750; transition: transform .15s, background .15s; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { color: white; background: var(--green); }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-light { background: #edf0e7; color: var(--green-dark); }
+    .btn-danger { background: #fff0ee; color: var(--red); }
+    main { max-width: 1440px; margin: auto; padding: 34px 5.5% 64px; }
+    .hero { background: var(--green); border-radius: 28px; padding: clamp(28px, 5vw, 64px); color: white; display: grid; grid-template-columns: 1.2fr .8fr; align-items: center; gap: 28px; overflow: hidden; position: relative; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .16em; color: var(--lime); font-size: 11px; font-weight: 850; }
+    h1 { font-size: clamp(36px, 5.2vw, 66px); line-height: 1.02; letter-spacing: -.065em; margin: 17px 0; max-width: 650px; }
+    .hero p { color: #d6e2d8; line-height: 1.7; max-width: 500px; font-size: 15px; }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+    .hero .btn-primary { background: var(--lime); color: var(--green-dark); }
+    .hero .btn-light { background: rgba(255,255,255,.12); color: white; }
+    .hero-art { min-height: 240px; display: flex; justify-content: center; align-items: center; position: relative; }
+    .book-stack { position: relative; width: 250px; height: 255px; transform: rotate(-5deg); }
+    .book { position: absolute; bottom: 15px; width: 145px; height: 205px; border-radius: 8px 13px 13px 8px; box-shadow: 12px 14px 25px #102b20a6; padding: 18px 14px; display: flex; flex-direction: column; justify-content: space-between; border-left: 8px solid rgba(0,0,0,.12); }
+    .book small { text-transform: uppercase; font-size: 8px; letter-spacing: .16em; opacity: .8; }
+    .book b { font-family: Georgia, serif; font-size: 25px; line-height: 1.05; }
+    .book.one { left: 0; background: #e9b66e; color: #47351f; transform: rotate(-15deg); }
+    .book.two { left: 65px; bottom: 28px; background: #d8f078; color: #24442f; transform: rotate(5deg); }
+    .book.three { left: 120px; background: #c5d8e8; color: #253e4c; transform: rotate(16deg); }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin: 42px 0 20px; }
+    .section-head h2 { font-size: clamp(24px, 3vw, 34px); letter-spacing: -.05em; margin: 0 0 7px; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stat { background: var(--card); border: 1px solid var(--line); border-radius: 13px; padding: 10px 14px; font-size: 12px; color: var(--muted); }
+    .stat b { color: var(--ink); font-size: 17px; margin-right: 5px; }
+    .toolbar { display: flex; align-items: center; gap: 10px; margin: 20px 0; }
+    .search-wrap { position: relative; flex: 1; }
+    .search-wrap span { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+    .search-wrap input { padding-left: 42px; }
+    input, select { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; background: var(--card); color: var(--ink); outline: none; }
+    input:focus, select:focus { border-color: #78a28b; box-shadow: 0 0 0 3px #245c4515; }
+    .toolbar select { width: 165px; }
+    .book-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px; }
+    .book-card { background: var(--card); border: 1px solid var(--line); border-radius: 19px; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+    .book-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .cover { min-height: 205px; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; padding: 24px; background: #e5e9dc; }
+    .cover:before { content: ""; position: absolute; width: 180px; height: 180px; border: 1px solid #ffffff75; border-radius: 50%; }
+    .cover-inner { position: relative; width: 125px; height: 165px; padding: 17px 13px; border-radius: 3px 8px 8px 3px; box-shadow: 8px 9px 16px #15281f38; display: flex; flex-direction: column; justify-content: space-between; border-left: 6px solid #00000018; }
+    .cover-inner small { font-size: 7px; letter-spacing: .15em; text-transform: uppercase; opacity: .8; }
+    .cover-inner b { font: 23px/1.04 Georgia, serif; }
+    .cover-inner i { font-size: 8px; font-style: normal; letter-spacing: .1em; }
+    .cover-0 { background: #dfe8d7; } .cover-0 .cover-inner { background: #315b45; color: #f5f1df; }
+    .cover-1 { background: #f0dfcb; } .cover-1 .cover-inner { background: #bc6849; color: #fff1dd; }
+    .cover-2 { background: #dce6ec; } .cover-2 .cover-inner { background: #2d5268; color: #f2eee1; }
+    .cover-3 { background: #e7dfef; } .cover-3 .cover-inner { background: #70557d; color: #fff3df; }
+    .cover-4 { background: #e8e3cb; } .cover-4 .cover-inner { background: #5c6240; color: #f5edce; }
+    .cover-5 { background: #f0dce0; } .cover-5 .cover-inner { background: #a33d50; color: #fff0e7; }
+    .sold-label { position: absolute; top: 12px; right: 12px; background: #fffefaed; color: var(--red); font-size: 10px; font-weight: 850; padding: 7px 9px; border-radius: 8px; }
+    .card-body { padding: 16px; }
+    .condition { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; font-weight: 850; color: var(--green); }
+    .card-body h3 { margin: 8px 0 5px; font-size: 17px; letter-spacing: -.035em; overflow-wrap: anywhere; }
+    .author { color: var(--muted); font-size: 12px; }
+    .card-bottom { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; }
+    .price { font-size: 20px; font-weight: 850; letter-spacing: -.04em; }
+    .card-actions { display: flex; gap: 6px; }
+    .icon-btn { border: 1px solid var(--line); background: white; color: var(--ink); width: 34px; height: 34px; border-radius: 10px; }
+    .icon-btn:hover { background: #edf0e7; }
+    .empty { grid-column: 1/-1; text-align: center; background: var(--card); padding: 50px 20px; border: 1px dashed #cfd6c9; border-radius: 18px; color: var(--muted); }
+    .empty b { display: block; color: var(--ink); font-size: 19px; margin-bottom: 8px; }
+    .notice { display: none; padding: 12px 15px; border-radius: 12px; margin: 16px 0; font-size: 13px; }
+    .notice.show { display: block; }
+    .notice.ok { background: #e5f5e8; color: #215b36; }
+    .notice.error { background: #fff0ee; color: #9a2f29; }
+    .modal-backdrop { position: fixed; inset: 0; background: #0d1a13a8; display: none; align-items: center; justify-content: center; padding: 18px; z-index: 10; }
+    .modal-backdrop.open { display: flex; }
+    .modal { width: min(560px, 100%); max-height: 90vh; overflow: auto; background: var(--card); border-radius: 22px; padding: 25px; box-shadow: 0 30px 80px #0003; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .modal-head h2 { margin: 0; letter-spacing: -.04em; }
+    .close-btn { border: 0; background: #edf0e7; border-radius: 10px; width: 36px; height: 36px; font-size: 20px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field.full { grid-column: 1/-1; }
+    .field label { font-size: 12px; font-weight: 750; color: #455349; }
+    .modal-actions { display: flex; justify-content: end; gap: 9px; margin-top: 20px; }
+    .hint { font-size: 11px; color: var(--muted); line-height: 1.6; margin: 13px 0 0; }
+    footer { border-top: 1px solid var(--line); padding: 23px 5.5%; display: flex; justify-content: space-between; gap: 15px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 1050px) { .book-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hero { grid-template-columns: 1fr .7fr; } }
+    @media (max-width: 760px) { header { padding: 17px 5%; } nav { display: none; } main { padding: 22px 5% 45px; } .hero { grid-template-columns: 1fr; } .hero-art { min-height: 210px; } .book-stack { transform: scale(.82) rotate(-5deg); } .book-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .section-head { align-items: start; flex-direction: column; } .toolbar { flex-wrap: wrap; } .search-wrap { flex-basis: 100%; } .toolbar select { flex: 1; width: auto; } }
+    @media (max-width: 460px) { .book-grid { grid-template-columns: 1fr; } .cover { min-height: 190px; } .form-grid { grid-template-columns: 1fr; } .field.full { grid-column: auto; } .topbar { font-size: 10px; } footer { flex-direction: column; } .hero { border-radius: 20px; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <span>GOOD BOOKS. SECOND CHANCES.</span>
+    <strong>Find your next chapter ↗</strong>
+  </div>
+  <header>
+    <div class="brand"><span class="brand-mark">P</span> PageTurn<span style="color:#8c978c">.</span></div>
+    <nav>
+      <a href="#books">Explore books</a>
+      <a href="#how">How it works</a>
+      <a href="#api-settings">API settings</a>
+    </nav>
+    <button class="btn btn-primary" id="addBookTop">+ List a book</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">The campus book exchange</div>
+        <h1>Your next great read is already out there.</h1>
+        <p>Discover pre-loved textbooks and stories from fellow readers. Give a good book another chapter — and keep your budget happy.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="browseBtn">Explore available books ↘</button>
+          <button class="btn btn-light" id="registerBtn">Join the community +</button>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="book-stack">
+          <div class="book one"><small>Stories to keep</small><b>The Art<br>of Living</b><small>FIELD NOTES · 2026</small></div>
+          <div class="book two"><small>A new chapter</small><b>Think<br>Again</b><small>IDEAS FOR EVERY DAY</small></div>
+          <div class="book three"><small>Read. Learn.</small><b>Wild<br>Pages</b><small>THE READER'S EDITION</small></div>
+        </div>
+      </div>
+    </section>
+
+    <div id="notice" class="notice" role="status"></div>
+
+    <section id="books">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow" style="color:var(--green)">THE BOOKSHELF</div>
+          <h2>Find your next favourite.</h2>
+          <p>Browse what's available from your reading community.</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="availableCount">—</b> available</div>
+          <div class="stat"><b id="shownCount">—</b> shown</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="Search by book title…" aria-label="Search books by title"></div>
+        <select id="statusFilter" aria-label="Filter books">
+          <option value="available">Available books</option>
+          <option value="all">All books</option>
+          <option value="sold">Sold books</option>
+        </select>
+        <button class="btn btn-light" id="refreshBtn">↻ Refresh</button>
+      </div>
+      <div id="bookGrid" class="book-grid">
+        <div class="empty"><b>Ready to turn the page?</b>Connect your API and refresh to load the bookshelf.</div>
+      </div>
+    </section>
+
+    <section id="how" style="margin-top:50px;background:#e9ecdf;border-radius:22px;padding:25px 28px">
+      <div class="eyebrow" style="color:var(--green)">SIMPLE BY DESIGN</div>
+      <h2 style="margin:9px 0 8px;letter-spacing:-.04em">A better home for books.</h2>
+      <p style="margin:0;color:var(--muted);line-height:1.7;font-size:14px">Search the catalogue, list a book you no longer need, and help useful books find new readers.</p>
+    </section>
+
+    <section id="api-settings" style="margin-top:28px;border:1px solid var(--line);border-radius:20px;background:var(--card);padding:22px">
+      <div class="section-head" style="margin:0 0 16px">
+        <div><h2 style="font-size:22px">API connection</h2><p>Configure your local FastAPI server and required API key.</p></div>
+        <span style="font-size:12px;color:var(--muted)">FastAPI · SQLite</span>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label for="apiBase">API base URL</label><input id="apiBase" value="http://127.0.0.1:8000" placeholder="http://127.0.0.1:8000"></div>
+        <div class="field"><label for="apiKey">X-API-Key</label><input id="apiKey" type="password" placeholder="Enter your API key"></div>
+      </div>
+      <p class="hint">The key is kept only in this page's memory and is not saved. If you open this page from a different port, your FastAPI CORS settings must allow that origin. Never expose a production secret in a public website.</p>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn btn-primary" id="saveSettingsBtn">Use settings & load books</button>
+        <button class="btn btn-light" id="testApiBtn">Test connection</button>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>© 2026 PageTurn Book Marketplace</span><span>Made for readers, by readers.</span></footer>
+
+  <div class="modal-backdrop" id="bookModal" role="dialog" aria-modal="true" aria-labelledby="bookModalTitle">
+    <div class="modal">
+      <div class="modal-head"><h2 id="bookModalTitle">List a book</h2><button class="close-btn" data-close="bookModal" aria-label="Close">×</button></div>
+      <form id="bookForm">
+        <input type="hidden" id="editBookId">
+        <div class="form-grid">
+          <div class="field full"><label for="bookTitle">Book title *</label><input id="bookTitle" required maxlength="180" placeholder="e.g. Atomic Habits"></div>
+          <div class="field"><label for="bookAuthor">Author *</label><input id="bookAuthor" required placeholder="Author name"></div>
+          <div class="field"><label for="bookPrice">Price (PKR) *</label><input id="bookPrice" required type="number" min="0" step="1" placeholder="1500"></div>
+          <div class="field"><label for="bookCondition">Condition *</label><select id="bookCondition" required><option value="Like New">Like New</option><option value="Very Good">Very Good</option><option value="Good" selected>Good</option><option value="Acceptable">Acceptable</option></select></div>
+          <div class="field"><label for="bookUserId">Seller user ID *</label><input id="bookUserId" required type="number" min="1" step="1" placeholder="e.g. 1"></div>
+          <div class="field full"><label style="display:flex;align-items:center;gap:8px"><input id="bookIsSold" type="checkbox" style="width:auto"> Mark as sold</label></div>
+        </div>
+        <p class="hint">Your API's CreateBookRequest requires title, author, price, condition, is_sold and user_id.</p>
+        <div class="modal-actions"><button type="button" class="btn btn-light" data-close="bookModal">Cancel</button><button class="btn btn-primary" type="submit" id="saveBookBtn">Save book</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="userModal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
+    <div class="modal">
+      <div class="modal-head"><h2 id="userModalTitle">Join PageTurn</h2><button class="close-btn" data-close="userModal" aria-label="Close">×</button></div>
+      <form id="userForm">
+        <div class="form-grid">
+          <div class="field"><label for="username">Username *</label><input id="username" required placeholder="Your name"></div>
+          <div class="field"><label for="userEmail">Email *</label><input id="userEmail" type="email" required placeholder="you@example.com"></div>
+          <div class="field"><label for="university">University *</label><input id="university" required placeholder="University name"></div>
+          <div class="field"><label for="phone">Phone number *</label><input id="phone" required placeholder="+92…"></div>
+        </div>
+        <p class="hint">After registration, your user ID can be used as the seller ID when listing a book.</p>
+        <div class="modal-actions"><button type="button" class="btn btn-light" data-close="userModal">Cancel</button><button class="btn btn-primary" type="submit">Create account</button></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // API key is intentionally held in memory only.
+    const state = { books: [], base: 'http://127.0.0.1:8000', apiKey: '', editing: false };
+    const $ = (id) => document.getElementById(id);
+    const money = (value) => 'Rs. ' + Number(value || 0).toLocaleString('en-PK');
+    const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    function notify(message, type = 'ok') {
+      const el = $('notice');
+      el.textContent = message;
+      el.className = `notice show ${type}`;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      clearTimeout(notify.timer);
+      notify.timer = setTimeout(() => el.className = 'notice', 6500);
+    }
+    function openModal(id) { $(id).classList.add('open'); }
+    function closeModal(id) { $(id).classList.remove('open'); }
+    function headers(json = false) {
+      const h = { 'x-api-key': state.apiKey };
+      if (json) h['Content-Type'] = 'application/json';
+      return h;
+    }
+    function apiUrl(path) { return state.base.replace(/\/+$/, '') + path; }
+    async function api(path, options = {}) {
+      let response;
+      try {
+        response = await fetch(apiUrl(path), { ...options, headers: { ...headers(Boolean(options.body)), ...(options.headers || {}) } });
+      } catch (e) {
+        throw new Error('Could not reach FastAPI. Check that the server is running, the URL is correct, and CORS allows this page.');
+      }
+      const text = await response.text();
+      let data;
+      try { data = text ? JSON.parse(text) : {}; } catch { data = { detail: text }; }
+      if (!response.ok) {
+        const detail = data.error || data.detail || data.message || `HTTP ${response.status}`;
+        throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+      }
+      return data;
+    }
+    function normalizeBooks(data) {
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data.book)) return data.book;
+      if (data.book && typeof data.book === 'object') return [data.book];
+      return [];
+    }
+    async function loadBooks() {
+      $('bookGrid').innerHTML = '<div class="empty"><b>Loading your bookshelf…</b>Fetching books from FastAPI.</div>';
+      try {
+        const data = await api('/book/?offset=0&limit=100');
+        state.books = normalizeBooks(data);
+        renderBooks();
+        notify(data.message || 'Bookshelf updated successfully.');
+      } catch (e) {
+        $('bookGrid').innerHTML = `<div class="empty"><b>Could not load books</b>${escapeHTML(e.message)}<br><br>Check the API URL and X-API-Key below, then try again.</div>`;
+        $('availableCount').textContent = '—'; $('shownCount').textContent = '0';
+        notify(e.message, 'error');
+      }
+    }
+    function renderBooks() {
+      const search = $('searchInput').value.trim().toLowerCase();
+      const filter = $('statusFilter').value;
+      const available = state.books.filter(b => !b.is_sold);
+      const filtered = state.books.filter(b => {
+        const matchesTitle = String(b.title || '').toLowerCase().includes(search);
+        const matchesStatus = filter === 'all' || (filter === 'sold' ? Boolean(b.is_sold) : !b.is_sold);
+        return matchesTitle && matchesStatus;
+      });
+      $('availableCount').textContent = available.length;
+      $('shownCount').textContent = filtered.length;
+      if (!filtered.length) {
+        $('bookGrid').innerHTML = `<div class="empty"><b>${search ? 'No matching books found' : 'No books to show yet'}</b>${search ? 'Try another title or clear your search.' : 'Be the first to add a book to this bookshelf.'}</div>`;
+        return;
+      }
+      $('bookGrid').innerHTML = filtered.map((book, index) => {
+        const id = Number(book.id);
+        const coverIndex = Math.abs((id || index) % 6);
+        const title = escapeHTML(book.title || 'Untitled');
+        const author = escapeHTML(book.author || 'Unknown author');
+        const condition = escapeHTML(book.condition || 'Used');
+        const sold = Boolean(book.is_sold);
+        const displayTitle = title.length > 38 ? title.slice(0, 35) + '…' : title;
+        const coverTitle = escapeHTML((book.title || 'A Good Book').split(/\s+/).slice(0, 3).join('<br>'));
+        return `<article class="book-card">
+          <div class="cover cover-${coverIndex}">
+            ${sold ? '<span class="sold-label">SOLD</span>' : ''}
+            <div class="cover-inner"><small>PAGETURN EDITION</small><b>${coverTitle}</b><i>${author.toUpperCase().slice(0, 30)}</i></div>
+          </div>
+          <div class="card-body">
+            <div class="condition">${condition}</div>
+            <h3 title="${title}">${displayTitle}</h3>
+            <div class="author">by ${author}</div>
+            <div class="card-bottom">
+              <div class="price">${money(book.price)}</div>
+              <div class="card-actions">
+                <button class="icon-btn" title="Edit book" aria-label="Edit ${title}" data-action="edit" data-id="${id}">✎</button>
+                <button class="icon-btn" title="${sold ? 'Mark available' : 'Mark sold'}" aria-label="${sold ? 'Mark available' : 'Mark sold'}" data-action="sold" data-id="${id}" data-sold="${sold}">${sold ? '↺' : '✓'}</button>
+                <button class="icon-btn" title="Delete book" aria-label="Delete ${title}" data-action="delete" data-id="${id}">⌫</button>
+              </div>
+            </div>
+          </div>
+        </article>`;
+      }).join('');
+    }
+    function resetBookForm() {
+      $('bookForm').reset(); $('editBookId').value = ''; $('bookModalTitle').textContent = 'List a book'; $('saveBookBtn').textContent = 'Save book';
+    }
+    function editBook(id) {
+      const b = state.books.find(x => Number(x.id) === id);
+      if (!b) return notify('Book not found in the current list.', 'error');
+      $('editBookId').value = b.id;
+      $('bookTitle').value = b.title || '';
+      $('bookAuthor').value = b.author || '';
+      $('bookPrice').value = b.price ?? '';
+      $('bookCondition').value = b.condition || 'Good';
+      $('bookUserId').value = b.user_id ?? '';
+      $('bookIsSold').checked = Boolean(b.is_sold);
+      $('bookModalTitle').textContent = 'Edit book';
+      $('saveBookBtn').textContent = 'Update book';
+      openModal('bookModal');
+    }
+    $('bookGrid').addEventListener('click', async (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const id = Number(button.dataset.id);
+      const action = button.dataset.action;
+      if (action === 'edit') return editBook(id);
+      if (action === 'delete') {
+        const book = state.books.find(b => Number(b.id) === id);
+        if (!confirm(`Delete "${book?.title || 'this book'}" permanently?`)) return;
+        try { const result = await api(`/book/${id}`, { method: 'DELETE' }); notify(result.message || 'Book deleted.'); await loadBooks(); }
+        catch (e) { notify(e.message, 'error'); }
+      }
+      if (action === 'sold') {
+        const currentlySold = button.dataset.sold === 'true';
+        try {
+          const result = await api(`/book/${id}/is_sold?is_sold=${!currentlySold}`, { method: 'PATCH' });
+          notify(result.message || `Book marked ${currentlySold ? 'available' : 'sold'}.`);
+          await loadBooks();
+        } catch (e) { notify(e.message, 'error'); }
+      }
+    });
+    $('bookForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const id = $('editBookId').value;
+      const payload = {
+        title: $('bookTitle').value.trim(),
+        author: $('bookAuthor').value.trim(),
+        price: Number($('bookPrice').value),
+        condition: $('bookCondition').value,
+        is_sold: $('bookIsSold').checked,
+        user_id: Number($('bookUserId').value)
+      };
+      if (!Number.isInteger(payload.price) || payload.price < 0 || !Number.isInteger(payload.user_id) || payload.user_id < 1) {
+        return notify('Enter a valid whole-number price and seller user ID.', 'error');
+      }
+      try {
+        const result = await api(id ? `/book/${id}` : '/book/', { method: id ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+        closeModal('bookModal'); resetBookForm(); notify(result.message || (id ? 'Book updated.' : 'Book created.'));
+        await loadBooks();
+      } catch (e) { notify(e.message, 'error'); }
+    });
+    $('userForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const payload = {
+        username: $('username').value.trim(),
+        email: $('userEmail').value.trim(),
+        uni_name: $('university').value.trim(),
+        Phone_number: $('phone').value.trim()
+      };
+      try {
+        const result = await api('/user/', { method: 'POST', body: JSON.stringify(payload) });
+        closeModal('userModal'); $('userForm').reset();
+        const user = result.user || {};
+        notify(`${result.message || 'User created successfully.'}${user.id ? ` Your user ID is ${user.id}. Use it as seller ID when adding a book.` : ''}`);
+        if (user.id) { $('bookUserId').value = user.id; }
+      } catch (e) { notify(e.message, 'error'); }
+    });
+    $('addBookTop').addEventListener('click', () => { resetBookForm(); openModal('bookModal'); });
+    $('registerBtn').addEventListener('click', () => openModal('userModal'));
+    $('browseBtn').addEventListener('click', () => $('books').scrollIntoView({ behavior: 'smooth' }));
+    $('refreshBtn').addEventListener('click', loadBooks);
+    $('searchInput').addEventListener('input', renderBooks);
+    $('statusFilter').addEventListener('change', renderBooks);
+    $('saveSettingsBtn').addEventListener('click', () => {
+      state.base = $('apiBase').value.trim() || 'http://127.0.0.1:8000';
+      state.apiKey = $('apiKey').value.trim();
+      loadBooks();
+    });
+    $('testApiBtn').addEventListener('click', async () => {
+      state.base = $('apiBase').value.trim() || 'http://127.0.0.1:8000';
+      state.apiKey = $('apiKey').value.trim();
+      try {
+        const data = await api('/book/?offset=0&limit=1');
+        notify(`Connection successful. ${normalizeBooks(data).length} book(s) returned in test.`);
+      } catch (e) { notify(e.message, 'error'); }
+    });
+    document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.close)));
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(backdrop.id); }));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop.open').forEach(m => closeModal(m.id)); });
+    // Don't make an authenticated request until the user supplies the API key.
+    $('bookGrid').innerHTML = '<div class="empty"><b>Your bookshelf is waiting.</b>Enter your API URL and X-API-Key in API connection, then click “Use settings & load books”.</div>';
+  </script>
+</body>
+</html>
